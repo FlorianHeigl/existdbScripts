@@ -10,4 +10,10 @@ echo 'Starting the eXist native XML database from within /etc/rc.d/rc.local ...'
 grep 'jetty.port' $EXIST_HOME/tools/jetty/etc/jetty.xml
 echo 'Stating with the following max memory (MB)'
 grep 'wrapper.java.maxmemory' $EXIST_HOME/tools/wrapper/conf/wrapper.conf
-/etc/init.d/exist start
+# start as service user
+su svcexist -c /etc/init.d/exist start
+
+# add nat rule to forward 8080 to 80. 8080 also accessible with this config.
+iptables -A INPUT -i eth0 -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -i eth0 -p tcp --dport 8080 -j ACCEPT
+iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
