@@ -23,7 +23,7 @@
     existDir: /usr/local/exist2.0.x
     existLn: /usr/local/existlatest
     existShLn: /usr/local/exist
-    #java_home: /usr/lib/jvm/java
+    java_home: /usr/lib/jvm/java-1.7.0-openjdk-amd64
     existJettyPort: 8080
     jettyConfFile: /usr/local/existlatest/tools/jetty/etc/jetty.xml
     wrapperConfFile: /usr/local/existlatest/tools/wrapper/conf/wrapper.conf
@@ -53,17 +53,14 @@
     user: name=svcexist
       
   - name: install java-1.7.0-openjdk latest version
-    action: yum pkg=java-1.7.0-openjdk state=latest
-    
-  - name: set alternatives up for java 1.7 openJdk
-    action: script ../../bash/javaAlternatives.sh
+    apt: pkg=openjdk-7-jdk state=latest
     
   - name: install ant lastest version
-    action: yum pkg=ant state=latest
+    apt: pkg=ant state=latest
     when_string: ${buildSuccess.stdout} != 'BUILD SUCCESSFUL'
     
   - name: install git
-    action: yum pkg=git state=present
+    apt: pkg=git-core state=present
     when_string: ${buildSuccess.stdout} != 'BUILD SUCCESSFUL'
     
   - git: repo={{ existgitUrl }}
