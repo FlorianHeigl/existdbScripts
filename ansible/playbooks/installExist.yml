@@ -14,7 +14,6 @@
 #    add inet.d startup
 #    change sudoer file
 #    sudoer changes
-#    change port to 80 or make firewall change
 #    memory settings
 #    WHAT ELSE?
 #
@@ -25,7 +24,7 @@
     existLn: /usr/local/existlatest
     existShLn: /usr/local/exist
     #java_home: /usr/lib/jvm/java
-    existJettyPort: 80
+    existJettyPort: 8080
     jettyConfFile: /usr/local/existlatest/tools/jetty/etc/jetty.xml
     wrapperConfFile: /usr/local/existlatest/tools/wrapper/conf/wrapper.conf
     # MBytes
@@ -49,6 +48,9 @@
   - name: test
     debug: msg="test is successful"
     when_string: ${buildSuccess.stdout} != 'BUILD SUCCESSFUL'
+    
+  - name: add user svcexist
+    user: name=svcexist
       
   - name: install java-1.7.0-openjdk latest version
     action: yum pkg=java-1.7.0-openjdk state=latest
@@ -67,6 +69,12 @@
   - name: checkout exist-db from svn at ${existSvnUrl}
     action: command svn checkout ${existSvnUrl} ${existDir}
     when_string: ${buildSuccess.stdout} != 'BUILD SUCCESSFUL'
+    
+  - name: add missing directories
+    file: dest={{ item }} state=directory
+    with_items:
+      - {{ existDir }}/lib/extensions
+      - {{ existDir }}/extensions/modules/lib
     
   - name: build existdb with javac in this location ${existDir}
     action: script ../../bash/buildExistdb.sh ${existDir}
