@@ -53,17 +53,17 @@
     user: name=svcexist
       
   - name: install java-1.7.0-openjdk latest version
-    action: yum pkg=java-1.7.0-openjdk state=latest
+    yum: pkg=java-1.7.0-openjdk state=latest
     
   - name: set alternatives up for java 1.7 openJdk
-    action: script ../../bash/javaAlternatives.sh
+    script: ../../bash/javaAlternatives.sh
     
   - name: install ant lastest version
-    action: yum pkg=ant state=latest
+    yum: pkg=ant state=latest
     when: buildSuccess.stdout != 'BUILD SUCCESSFUL'
     
   - name: install git
-    action: yum pkg=git state=present
+    yum: pkg=git state=present
     when: buildSuccess.stdout != 'BUILD SUCCESSFUL'
     
   - git: repo={{ existgitUrl }}
@@ -86,19 +86,19 @@
     action: debug msg="1"
     
   - name: create a symbolic link for $EXIST_HOME as ${existLn} 
-    action: file src="${existDir}" dest="${existLn}" state=link
+    file: src="${existDir}" dest="${existLn}" state=link
     ignore_errors: True
 
   - name: create a link to the exist.sh file 
-    action: file src="${existDir}/tools/wrapper/bin/exist.sh" dest="${existShLn}" state=link
+    file: src="${existDir}/tools/wrapper/bin/exist.sh" dest="${existShLn}" state=link
     ignore_errors: True
 
   - name: create a symbolic link to the exist.sh script for other uses
-    action: file src="${existLn}/tools/wrapper/bin/exist.sh" dest="/usr/local/bin/exist" state=link
+    file: src="${existLn}/tools/wrapper/bin/exist.sh" dest="/usr/local/bin/exist" state=link
     ignore_errors: True    
 
   - name: create a symbolic link to the exist.sh script for init.d
-    action: file src="${existLn}/tools/wrapper/bin/exist.sh" dest="/etc/init.d/exist" state=link
+    file: src="${existLn}/tools/wrapper/bin/exist.sh" dest="/etc/init.d/exist" state=link
     ignore_errors: True  
 
     # wonky alert - these debug messages let the ln -s get created 
@@ -106,28 +106,28 @@
     action: debug msg="2"
     
     name: get the value of $JAVA_HOME for use later
-    action: shell source /etc/profile; echo $JAVA_HOME
+    shell: source /etc/profile; echo $JAVA_HOME
     register: actualJavaHome
     
   - name: echo JAVA_HOME for debugging purposes                                                 
     action: debug msg=${actualJavaHome.stdout}                               
 
   - name: add EXIST_HOME to /etc/profile
-    action: lineinfile backup="yes" dest="/etc/profile" insertafter="EOF" state=present line="source /home/ec2-user/ec2ExistEnv.sh" regexp="^source /home/ec2-user/ec2ExistEnv\.sh$"
+    lineinfile: backup="yes" dest="/etc/profile" insertafter="EOF" state=present line="source /home/ec2-user/ec2ExistEnv.sh" regexp="^source /home/ec2-user/ec2ExistEnv\.sh$"
      
   - name: add templated ec2ExistEnv.sh to ec2-user home
-    action: template src=../templates/ec2ExistEnv.template dest=/home/ec2-user/ec2ExistEnv.sh mode=0555
+    template: src=../templates/ec2ExistEnv.template dest=/home/ec2-user/ec2ExistEnv.sh mode=0555
     
   - name: source /etc/profile so some env values get created
-    action: shell source /etc/profile
+    shell: source /etc/profile
     ignore_errors: True
     
   - name: create a /etc/rc.d/rc.local file with -rwxr-xr-x file permissions (this file starts exist on reboot) 
-    action: template backup=yes src=../templates/ec2ExistRclocal.template dest=/etc/rc.d/rc.local mode=0755
+    template" backup=yes src=../templates/ec2ExistRclocal.template dest=/etc/rc.d/rc.local mode=0755
     
   - name: set the wrapper max memory to ${existWrapperMaxMem} MB
-    action: lineinfile backup="yes" dest="${wrapperConfFile}" state=present line="wrapper.java.maxmemory=${existWrapperMaxMem}" regexp="^wrapper.java.maxmemory=\d+"
+    lineinfile: backup="yes" dest="${wrapperConfFile}" state=present line="wrapper.java.maxmemory=${existWrapperMaxMem}" regexp="^wrapper.java.maxmemory=\d+"
     
   - name: set the jetty wrapper port for http to ${existJettyPort}
-    action: lineinfile backup="yes" dest="${jettyConfFile}" state=present line='<Set name="port"><SystemProperty name="jetty.port" default="${existJettyPort}"/></Set>' regexp='<Set name="port"><SystemProperty\sname="jetty.port"\s'
+    lineinfile: backup="yes" dest="${jettyConfFile}" state=present line='<Set name="port"><SystemProperty name="jetty.port" default="${existJettyPort}"/></Set>' regexp='<Set name="port"><SystemProperty\sname="jetty.port"\s'
     
