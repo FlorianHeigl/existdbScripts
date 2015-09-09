@@ -36,7 +36,7 @@
 
   tasks:
   - name: find out of build of exist has already been successful
-    action: shell cat ${existDir}/buildExist.log | grep "BUILD SUCCESSFUL"
+    action: shell grep "BUILD SUCCESSFUL" ${existDir}/buildExist.log 
     ignore_errors: True
     register: buildSuccess
    
@@ -47,7 +47,7 @@
 # this works leave this here till be make use this code elsewhere
   - name: test
     debug: msg="test is successful"
-    when_string: ${buildSuccess.stdout} != 'BUILD SUCCESSFUL'
+    when: buildSuccess.stdout != 'BUILD SUCCESSFUL'
     
   - name: add user svcexist
     user: name=svcexist
@@ -60,11 +60,11 @@
     
   - name: install ant lastest version
     action: yum pkg=ant state=latest
-    when_string: ${buildSuccess.stdout} != 'BUILD SUCCESSFUL'
+    when: buildSuccess.stdout != 'BUILD SUCCESSFUL'
     
   - name: install git
     action: yum pkg=git state=present
-    when_string: ${buildSuccess.stdout} != 'BUILD SUCCESSFUL'
+    when: buildSuccess.stdout != 'BUILD SUCCESSFUL'
     
   - git: repo={{ existgitUrl }}
        dest={{ existDir }}
@@ -79,7 +79,7 @@
     
   - name: build existdb with javac in this location ${existDir}
     action: script ../../bash/buildExistdb.sh ${existDir}
-    when_string: ${buildSuccess.stdout} != 'BUILD SUCCESSFUL'
+    when: buildSuccess.stdout != 'BUILD SUCCESSFUL'
 
     # wonky alert - these debug messages let the ln -s get created 
   - name: debug 1
