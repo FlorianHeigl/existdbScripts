@@ -9,5 +9,5 @@ EXIST_HOME={{ existLn }}
 echo 'Starting the eXist native XML database from within /etc/rc.d/rc.local ...'
 grep 'jetty.port' $EXIST_HOME/tools/jetty/etc/jetty.xml
 echo 'Stating with the following max memory (MB)'
-grep 'wrapper.java.maxmemory' $EXIST_HOME/tools/wrapper/wrapper.conf
+grep 'wrapper.java.maxmemory' $EXIST_HOME/tools/wrapper/conf/wrapper.conf
 /etc/init.d/exist start
