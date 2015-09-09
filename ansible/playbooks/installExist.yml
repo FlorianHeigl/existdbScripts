@@ -19,7 +19,7 @@
 #
 - hosts: naked-existdb
   vars:
-    existSvnUrl: svn://svn.code.sf.net/p/exist/code/stable/eXist-2.0.x
+    existgitUrl: https://github.com/eXist-db/exist.git
     existDir: /usr/local/exist2.0.x
     existLn: /usr/local/existlatest
     existShLn: /usr/local/exist
@@ -62,13 +62,14 @@
     action: yum pkg=ant state=latest
     when_string: ${buildSuccess.stdout} != 'BUILD SUCCESSFUL'
     
-  - name: install svn
-    action: yum pkg=svn state=present
+  - name: install git
+    action: yum pkg=git state=present
     when_string: ${buildSuccess.stdout} != 'BUILD SUCCESSFUL'
     
-  - name: checkout exist-db from svn at ${existSvnUrl}
-    action: command svn checkout ${existSvnUrl} ${existDir}
-    when_string: ${buildSuccess.stdout} != 'BUILD SUCCESSFUL'
+  - git: repo={{ existgitUrl }}
+       dest={{ existDir }}
+       version=eXist-2.0.x
+    when: buildSuccess.stdout != 'BUILD SUCCESSFUL'
     
   - name: add missing directories
     file: dest={{ item }} state=directory
